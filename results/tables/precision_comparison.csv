@@ -1,0 +1,6 @@
+Precision_Path,Accuracy,Reliability_Score,Storage_MB,Compression_Ratio
+FP16,0.8,0.7535344827586207,949.65,1.0
+Direct_INT4,0.0,0.27887931034482755,243.04,3.88
+Progressive_INT4,0.0,0.30693103448275866,243.04,3.88
+Selective_Repair,0.0,0.3364827586206897,267.34,3.57
+Adaptive_Precision,0.8,0.743793103448276,243.04,3.41

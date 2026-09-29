@@ -1,0 +1,89 @@
+# ============================================================
+# Q-TRACE EXPERIMENTAL CONFIGURATION
+# Quantization Trace, Reliability, Calibration & Adaptive Precision
+# ============================================================
+
+experiment:
+  name: "Q-TRACE Research Investigation"
+  title: "Investigating Information Loss and Factual Reliability Degradation in Quantized Small Language Models"
+  random_seeds: [42, 123, 456]
+  default_seed: 42
+  fast_mode_samples: 10
+  quick_mode_samples: 10
+  research_mode_samples: 50
+
+model:
+  default_model: "Qwen/Qwen2.5-0.5B-Instruct"
+  aliases:
+    qwen05: "Qwen/Qwen2.5-0.5B-Instruct"
+    qwen15: "Qwen/Qwen2.5-1.5B-Instruct"
+  device: "auto" # "cuda", "cpu", or "auto"
+  torch_dtype: "auto"
+  low_cpu_mem_usage: true
+
+dataset:
+  default_dataset: "truthfulqa"
+  supported: ["truthfulqa", "halueval", "csv"]
+  custom_csv_path: "data/custom_eval.csv"
+  max_eval_samples: 30
+
+quantization:
+  engine_name: "Q-TRACE Group-wise Quantizer"
+  bit_widths: [8, 4]
+  group_sizes: [32, 64, 128, 256]
+  default_group_size: 128
+  granularities: ["per-tensor", "per-channel", "group-wise"]
+  default_granularity: "group-wise"
+  clipping_methods: ["none", "percentile", "calibration_based"]
+  default_clipping: "percentile"
+  clipping_percentile: 99.5
+
+calibration:
+  sources: ["general_text", "factual_qa", "mixed_domain"]
+  default_source: "factual_qa"
+  sizes: [16, 32, 64, 128, 256]
+  fast_size: 16
+  prevent_eval_leakage: true
+
+information_loss_index:
+  formula: "ILI = 0.35 * norm_weight_err + 0.25 * norm_act_drift + 0.25 * norm_logit_kl + 0.15 * norm_token_prob_drift"
+  w_weight_err: 0.35
+  w_act_drift: 0.25
+  w_logit_kl: 0.25
+  w_token_prob_drift: 0.15
+
+reliability_score:
+  formula: "Reliability = 0.50 * correctness + 0.20 * semantic_agreement + 0.15 * confidence_calibration + 0.15 * consistency"
+  w_correctness: 0.50
+  w_semantic: 0.20
+  w_calibration: 0.15
+  w_consistency: 0.15
+
+repair:
+  fractions: [0.05, 0.10, 0.15, 0.20]
+  default_fraction: 0.10
+  greedy_steps: 4
+  repair_target_precision: "INT8"
+
+adaptive_precision:
+  entropy_threshold: 1.15
+  confidence_threshold: 0.65
+  top_token_margin_threshold: 0.15
+  escalation_levels:
+    low_risk: "INT4"
+    medium_risk: "INT8"
+    high_risk: "FP16"
+
+generation:
+  max_new_tokens: 36
+  temperature: 0.0 # Deterministic greedy generation for reproducible science
+  top_p: 1.0
+  do_sample: false
+
+results:
+  base_dir: "results"
+  graphs_dir: "results/graphs"
+  tables_dir: "results/tables"
+  failures_dir: "results/failures"
+  checkpoints_dir: "results/checkpoints"
+  raw_dir: "results/raw"
